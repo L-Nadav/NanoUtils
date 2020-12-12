@@ -1,0 +1,16 @@
+[
+{
+  "modid": "nanoutils",
+  "name": "NanoUtils",
+  "description": "Simple but effective module loader.",
+  "version": "0.1",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["KyoZM"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

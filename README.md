@@ -8,10 +8,9 @@ JDK 8
 ## Build Instructions
 
 1. Clone the repository
-2. Add external module
-3. Windows - Run gradlew.bat clean build on command line
-3. Unix - Run ./gradlew clean build on terminal
-4. Done :) it's in build/libs/
+2. Windows - Run gradlew.bat clean build on command line
+2. Unix - Run ./gradlew clean build on terminal
+3. Done :) it's in build/libs/
 
 ## Roadmap 0.1.final
 

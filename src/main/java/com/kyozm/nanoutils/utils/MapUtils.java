@@ -1,9 +1,8 @@
 package com.kyozm.nanoutils.utils;
 
-import com.kyozm.nanoutils.listeners.ModuleManagerDriver;
-import net.minecraft.block.material.MapColor;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.MapItemRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
@@ -11,14 +10,34 @@ import net.minecraft.world.storage.MapData;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
+import java.util.HashMap;
 import java.util.Optional;
-import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.glDepthRange;
 
 public class MapUtils {
 
     private static final int NORMAL_MAP_DIMS = 64;
+    public static HashMap<String, MapCache.FastMapCache> fastCache = new HashMap<>();
+
+    public static void sendFastCacheToMemoryCache() {
+        fastCache.forEach((name, c) -> {
+            String serverIP = name.split("_map")[0];
+            CacheAPI.setMultiLevelCache(serverIP + "_maps", "map" + name.split("_map")[1], new MapCache(c.stackName, c.colors));
+        });
+    }
+
+    public static Optional<MapCache.FastMapCache> getFastCache(String name) {
+        String ip = NetworkUtils.getCurrentServerIp();
+        if (StringUtils.isEmpty(ip)) return Optional.empty();
+        return Optional.ofNullable(fastCache.get(ip + "_" + name));
+    }
+
+    public static void cache(String mapId, MapCache.FastMapCache cache) {
+        String ip = NetworkUtils.getCurrentServerIp();
+        if (StringUtils.isEmpty(ip)) return;
+        fastCache.put(ip + "_" + mapId, cache);
+    }
 
     public static MapData mapDataFromStack(ItemStack stack) {
         return ((ItemMap) stack.getItem()).getMapData(stack, Minecraft.getMinecraft().world);
@@ -44,18 +63,41 @@ public class MapUtils {
         float scaleX = (float) width / (float) NORMAL_MAP_DIMS;
         float scaleY = (float) height / (float) NORMAL_MAP_DIMS;
 
-        MapCache data = useCache ? getValueOrCache(map) : new MapCache(mapDataFromStack(map), map.getDisplayName());
-        if (StringUtils.isEmpty(data.basedColors)) return false;
-
-        //16384
-        MapData mapData;
-        if (data.isFromCache) {
-            mapData = new MapData("map_" + map.getMetadata());
-            mapData.colors = MapCache.decodeColorData(data.basedColors);
-            Minecraft.getMinecraft().entityRenderer.getMapItemRenderer().updateMapTexture(mapData);
+        MapData mapData = null; //16384
+        MapData stackData = mapDataFromStack(map);
+        if (useCache) {
+            String mapId = "map_" + map.getMetadata();
+            if (stackData != null) {
+                mapData = stackData;
+                MapCache.FastMapCache tmp = new MapCache.FastMapCache(map.getDisplayName(), mapData.colors);
+                if (fastCache.containsKey(mapId))  {
+                    if (!fastCache.get(mapId).equals(tmp))
+                        cache(mapId, tmp);
+                } else {
+                    cache(mapId, tmp);
+                }
+            } else {
+                Optional<MapCache.FastMapCache> fastBoi = getFastCache(mapId);
+                if (fastBoi.isPresent()) { // Try Getting from fast cache
+                    mapData = new MapData(mapId);
+                    mapData.colors = fastBoi.get().colors;
+                    Minecraft.getMinecraft().entityRenderer.getMapItemRenderer().updateMapTexture(mapData);
+                    Minecraft.getMinecraft().world.setData(mapId, mapData);
+                } else {
+                    MapCache storedCache = tryMapCache(mapId);
+                    if (storedCache != null) { // if not in fast cache try getting from cache file / memcache
+                        mapData = new MapData(mapId);
+                        mapData.colors = MapCache.decodeColorData(storedCache.basedColors);
+                        cache(mapData.mapName, new MapCache.FastMapCache(map.getDisplayName(), mapData.colors)); // add to fast storage
+                        Minecraft.getMinecraft().entityRenderer.getMapItemRenderer().updateMapTexture(mapData);
+                    }
+                }
+            }
         } else {
             mapData = mapDataFromStack(map);
         }
+
+        if (mapData == null) return false;
 
         GL11.glPushMatrix();
             GlStateManager.disableLighting();
@@ -90,9 +132,9 @@ public class MapUtils {
     public static MapCache tryMapCache(String mapName) {
         String serverIP = NetworkUtils.getCurrentServerIp();
         if (StringUtils.isEmpty(serverIP)) return null;
-        Optional<MapCache> cached = CacheAPI.getMultiLevelCache(serverIP + "_maps", mapName);
+        Optional<LinkedTreeMap> cached = CacheAPI.getMultiLevelCache(serverIP + "_maps", mapName);
         if (cached.isPresent()) {
-            MapCache c = cached.get();
+            MapCache c = new Gson().fromJson(new Gson().toJson(cached.get()), MapCache.class);
             c.isFromCache = true;
             return c;
         }

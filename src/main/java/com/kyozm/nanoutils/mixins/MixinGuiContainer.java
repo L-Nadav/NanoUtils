@@ -25,8 +25,9 @@ public class MixinGuiContainer {
             int x = slot.xPos -1;
             int y = slot.yPos - 1;
 
-            if (MapUtils.renderMapFromStack(itemStack, x, y, 0.29f, MapPreview.cache.getVal())) // do not question the float magick
+            if (MapUtils.renderMapFromStack(itemStack, x, y, 0.29f, MapPreview.cache.getVal())) { // do not question the float magick
                 callbackInfo.cancel();
+            }
         }
     }
 }

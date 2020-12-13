@@ -15,6 +15,11 @@ public class MapCache implements Serializable {
         this.stackName = stackName;
     }
 
+    public MapCache(String mapData, byte[] colors) {
+        this.basedColors = encodeColorData(colors);
+        this.stackName = mapData;
+    }
+
     public MapCache(MapData mapData, String stackName) {
         this.basedColors = encodeColorData(mapData.colors);
         this.stackName = stackName;
@@ -44,5 +49,15 @@ public class MapCache implements Serializable {
 
     public static byte[] decodeColorData(String encoded) {
         return Base64.getDecoder().decode(encoded.getBytes());
+    }
+
+    public static class FastMapCache {
+        String stackName;
+        byte[] colors;
+
+        public FastMapCache(String name, byte[] colors) {
+            this.stackName = name;
+            this.colors = colors;
+        }
     }
 }

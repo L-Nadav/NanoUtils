@@ -9,11 +9,13 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
@@ -43,6 +45,7 @@ minecraft {
     version = "1.12.2-14.23.5.2847"
     runDir = "run"
     mappings = "snapshot_20171003"
+    coreMod = 'com.kyozm.nanoutils.mixins.MixinCore'
     clientRunArgs += "--mixin mixins.nanoutils.json"
     serverRunArgs += "--mixin mixins.nanoutils.json"
     clientJvmArgs += "-Dfml.coreMods.load=com.kyozm.nanoutils.mixins.MixinCore"
@@ -55,10 +58,6 @@ dependencies {
         exclude module: 'guava'
         exclude module: 'commons-io'
         exclude module: 'gson'
-    }
-
-    provided('org.mapdb:mapdb:3.0.7') {
-        exclude module: 'guava'
     }
 
     compile "com.github.ZeroMemes:Alpine:1.5"
@@ -84,6 +83,7 @@ processResources {
 }
 
 mixin {
+    defaultObfuscationEnv searge
     add sourceSets.main, "mixins.nanoutils.refmap.json"
 }
 
@@ -97,3 +97,22 @@ jar {
         attributes "MixinConfigs": "mixins.nanoutils.json"
     }
 }
+
+
+reobf {
+    shadowJar {
+        mappingType = 'SEARGE'
+        classpath = sourceSets.main.compileClasspath
+    }
+}
+
+
+shadowJar {
+    dependencies {
+        include(dependency('org.spongepowered:mixin'))
+        include(dependency('com.github.ZeroMemes:Alpine'))
+    }
+    classifier = 'release'
+}
+
+build.dependsOn(shadowJar)

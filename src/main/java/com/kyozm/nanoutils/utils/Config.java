@@ -2,7 +2,6 @@ package com.kyozm.nanoutils.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -11,7 +10,6 @@ import com.kyozm.nanoutils.modules.ModuleManager;
 import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
 import net.minecraftforge.fml.common.Loader;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -52,7 +50,6 @@ public class Config {
 
     }
 
-    @NotNull
     private static JsonObject proccessModuleSettings(List<Setting> settings, JsonObject settings_json) {
         for (Setting setting : settings) {
             if (setting instanceof NestedSetting)

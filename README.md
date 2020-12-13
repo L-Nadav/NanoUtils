@@ -1,6 +1,11 @@
 # NanoUtils
 Utilities for Minecraft 1.12.2
 
+## FAQ
+
+- Keybind to open GUI is (;) 
+- To get rid of corrupted cache (may be causing crashes) delete .minecraft/config/NanoUtils/servers.cache
+
 ## Requirements
 
 JDK 8

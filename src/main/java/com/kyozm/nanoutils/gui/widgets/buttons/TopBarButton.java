@@ -6,6 +6,7 @@ import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.containers.ModuleList;
 import com.kyozm.nanoutils.modules.ModuleCategory;
 import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
+import com.kyozm.nanoutils.modules.gui.Theme;
 import com.kyozm.nanoutils.utils.FontDrawer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -30,15 +31,16 @@ public class TopBarButton extends ToggleableSubmenuOpener {
 
         boolean hover = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
-        bg = toggled ? new Color(0x000000) : new Color(0x00000000, true);
+        bg = toggled ? Theme.topBarButtonEnabled.getVal() : new Color(0x00000000, true);
         if (hover) {
             if (NanoGuiModule.hoverOpen.getVal())
                 enable();
-            bg = bgHover;
+            bg = Theme.topBarButtonHover.getVal();
         }
 
 
-        fg = fgEnabled;
+        fg = Theme.topBarButtonFG.getVal();
+
 
         Gui.drawRect(x, y, x+width, y+height, bg.getRGB());
         FontDrawer.drawString(category.name(), x+4, y+4, fg);

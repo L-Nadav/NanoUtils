@@ -1,11 +1,16 @@
 package com.kyozm.nanoutils.utils;
 
-import java.awt.*;
+import com.kyozm.nanoutils.settings.Setting;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChromaSync {
-    public static Color current = new Color(1, 1, 1);
+    public static NanoColor current = new NanoColor(1, 1, 1);
+    public static List<Setting<NanoColor>> updateables = new ArrayList<>();
 
     public static void step() {
-        current = new Color(Color.HSBtoRGB((System.currentTimeMillis() % (360 * 48)) / (360f * 48), 1, 1));
+        current = new NanoColor(NanoColor.HSBtoRGB((System.currentTimeMillis() % (360 * 48)) / (360f * 48), 1, 1));
+        updateables.stream().filter(s -> s.getVal().isChroma).forEach(s -> s.setVal(s.getVal().applyChroma()));
     }
 }

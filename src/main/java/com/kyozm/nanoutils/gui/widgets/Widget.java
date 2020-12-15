@@ -1,6 +1,9 @@
 package com.kyozm.nanoutils.gui.widgets;
 
+import com.kyozm.nanoutils.NanoUtils;
 import net.minecraft.client.Minecraft;
+
+import java.util.Optional;
 
 public class Widget {
 
@@ -18,10 +21,18 @@ public class Widget {
     }
 
     public boolean intersects(int mX, int mY) {
-        return mX > screenX && mY > screenY && mX < screenX + width && mY < screenY + height;
+        return mX >= screenX && mY >= screenY && mX <= screenX + width && mY <= screenY + height;
     }
 
     public int width() {
         return width;
+    }
+
+    public void setAllSubWidgets() {
+
+    }
+
+    public Optional<Widget> getChildFromDepth() {
+        return NanoUtils.gui.depth.stream().filter(w -> w.parent == this).findAny();
     }
 }

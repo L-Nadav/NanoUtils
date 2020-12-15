@@ -1,20 +1,31 @@
 package com.kyozm.nanoutils.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.kyozm.nanoutils.modules.Module;
 import com.kyozm.nanoutils.modules.ModuleManager;
 import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.common.Loader;
+import org.jline.builtins.Nano;
+import org.lwjgl.input.Keyboard;
 
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +48,20 @@ public class Config {
             settings.add(module.getName(), settings_json);
         }
 
+        JsonObject guiObjects = new JsonObject();
+        for (Module module : ModuleManager.registered) {
+            module.saveablePositions.entrySet().stream().forEach((widget) -> {
+                if (widget.getValue() != null) {
+                    Map<String, Integer> pos = new HashMap<>();
+                    pos.put("x", widget.getValue().screenX);
+                    pos.put("y", widget.getValue().screenY);
+                    guiObjects.add(widget.getKey(), gs().toJsonTree(pos));
+                }
+            });
+        }
+
         config.add("settings", settings);
+        config.add("gui", guiObjects);
 
         try {
             if (!configDir.exists()) configDir.mkdirs();
@@ -54,7 +78,7 @@ public class Config {
         for (Setting setting : settings) {
             if (setting instanceof NestedSetting)
                 proccessModuleSettings(((NestedSetting) setting).internal, settings_json);
-            settings_json.add(setting.configName, new Gson().toJsonTree(setting.getVal()));
+            settings_json.add(setting.configName, gs().toJsonTree(setting.getVal()));
         }
         return settings_json;
     }
@@ -70,16 +94,58 @@ public class Config {
                 JsonObject settings = root.getAsJsonObject().get("settings").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> mod : settings.entrySet()) {
                     for (Map.Entry<String, JsonElement> set : mod.getValue().getAsJsonObject().entrySet()) {
-                        ModuleManager.setSettingByConfigName(set.getKey(), (Object) new Gson().fromJson(set.getValue(), Object.class));
+                        ModuleManager.setSettingByConfigName(set.getKey(), (Object) gs().fromJson(set.getValue(), Object.class));
                     }
                 }
 
+                JsonObject gui = root.getAsJsonObject().get("gui").getAsJsonObject();
+                for (Map.Entry<String, JsonElement> widget : gui.entrySet()) {
+                    ModuleManager.setGuiPosition(widget.getKey(), (Map<String, Double>) gs().fromJson(widget.getValue(), HashMap.class));
+                }
+
             } catch (Exception e) {
-                System.out.println("Couldn't load config");
-                System.out.println("Couldn't load config");
-                System.out.println("Couldn't load config");
-                System.out.println("Couldn't load config");
+                e.printStackTrace();
+                System.out.println("Couldn't load config: " + e.getMessage());
             }
         }
     }
+
+    public static Gson gs() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(NanoColor.class,  colorJsonDeserializer);
+        gsonBuilder.registerTypeAdapter(NanoColor.class,  colorJsonSerializer);
+
+        gsonBuilder.registerTypeAdapter(KeyBinding.class,  bindJsonDeserializer);
+        gsonBuilder.registerTypeAdapter(KeyBinding.class,  bindJsonSerializer);
+        return gsonBuilder.create();
+    }
+
+    static JsonSerializer<NanoColor> colorJsonSerializer = (src, typeOfSrc, context) -> {
+        JsonObject jsonNanoColor = new JsonObject();
+        jsonNanoColor.addProperty("rgb", src.getStringWithAlpha());
+        jsonNanoColor.addProperty("alpha", src.getAlpha());
+        jsonNanoColor.addProperty("isChroma", src.isChroma);
+        return jsonNanoColor;
+    };
+
+    static JsonDeserializer<NanoColor> colorJsonDeserializer = (json, typeOfSrc, context) -> {
+        NanoColor c = NanoColor.fromColor(Color.decode(json.getAsJsonObject().get("rgb").getAsString()));
+        NanoColor nc = new NanoColor(c.getRed(), c.getGreen(), c.getBlue()).withAlpha(json.getAsJsonObject().get("alpha").getAsInt());
+        nc.isChroma = json.getAsJsonObject().get("isChroma").getAsBoolean();
+        return nc;
+    };
+
+    static JsonSerializer<KeyBinding> bindJsonSerializer = (src, typeOfSrc, context) -> {
+        JsonObject jsonKeyBind = new JsonObject();
+        jsonKeyBind.addProperty("modifier", String.valueOf(src.getKeyModifier()));
+        jsonKeyBind.addProperty("keycode", src.getKeyCode());
+        jsonKeyBind.addProperty("name", src.getKeyDescription());
+        return jsonKeyBind;
+    };
+
+    static JsonDeserializer<KeyBinding> bindJsonDeserializer = (json, typeOfSrc, context) -> {
+        KeyBinding kb = new KeyBinding(json.getAsJsonObject().get("name").getAsString(), Keyboard.KEY_NONE, "NanoUtils");
+        kb.setKeyModifierAndCode(KeyModifier.valueFromString(json.getAsJsonObject().get("modifier").getAsString()), json.getAsJsonObject().get("keycode").getAsInt());
+        return kb;
+    };
 }

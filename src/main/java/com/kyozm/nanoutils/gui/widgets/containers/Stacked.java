@@ -1,5 +1,6 @@
 package com.kyozm.nanoutils.gui.widgets.containers;
 
+import com.kyozm.nanoutils.gui.widgets.ColorPicker;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 
 import java.util.Comparator;
@@ -17,7 +18,10 @@ public class Stacked extends Submenu {
     }
 
     private void setDimensions(Widget longestWidget) {
-        width = longestWidget.width + 6;
+        if (!ColorPicker.class.isAssignableFrom(longestWidget.getClass()))
+            width = longestWidget.width + 6;
+        else
+            width = longestWidget.width;
         height = 0;
         for (Widget w : plainElements) {
             w.parent = this;
@@ -25,6 +29,7 @@ public class Stacked extends Submenu {
             w.screenX = screenX;
             w.width = width;
             height += w.height + 1;
+            w.setAllSubWidgets();
         }
     }
 

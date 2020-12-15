@@ -6,9 +6,10 @@ public class Setting<T> {
     public String configName;
     private T val = null;
     private T defaultVal = null;
-    private T minVal = null;
-    private T maxVal = null;
-    private T step = null;
+    public T minVal = null;
+    public T maxVal = null;
+    public T step = null;
+    public int extraW = 0;
 
     public Class<T> type;
 
@@ -33,6 +34,15 @@ public class Setting<T> {
     public Setting<T> setDefaultVal(T defaultVal) {
         this.defaultVal = defaultVal;
         this.val = defaultVal;
+        return this;
+    }
+
+    public T getDefault() {
+        return defaultVal;
+    }
+
+    public Setting<T> setExtraWidth(int w) {
+        extraW = w;
         return this;
     }
 

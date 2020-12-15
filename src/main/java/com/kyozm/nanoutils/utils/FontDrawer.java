@@ -8,8 +8,8 @@ import java.awt.*;
 public class FontDrawer {
     public static FontRenderer mcFont = Minecraft.getMinecraft().fontRenderer;
 
-    public static void drawString(String string, int x, int y, Color color) {
-            mcFont.drawString(string, x, y - 2, color.getRGB());
+    public static void drawString(String string, int x, int y, Color nanoColor) {
+            mcFont.drawString(string, x, y - 2, nanoColor.getRGB());
     }
 
     public static int getStringWidth(String string) {

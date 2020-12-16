@@ -64,4 +64,7 @@ public abstract class Module {
     }
 
 
+    public void onKeyInput() {
+
+    }
 }

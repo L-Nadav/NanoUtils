@@ -31,8 +31,13 @@ public class Theme extends Module {
         registerSetting(Theme.class, topBarButtonEnabled);
         registerSetting(Theme.class, topBarButtonFG);
         registerSetting(Theme.class, nestedSettingOpenMenu);
+        registerSetting(Theme.class, shulkPreviewBG);
+        registerSetting(Theme.class, shulkPreviewFG);
+
         registerSetting(Theme.class, keybindsOnControls);
         registerSetting(Theme.class, drawSliderBorder);
+
+
 
         ChromaSync.updateables.add(guiBG);
         ChromaSync.updateables.add(topbarBG);
@@ -46,6 +51,9 @@ public class Theme extends Module {
         ChromaSync.updateables.add(topBarButtonEnabled);
         ChromaSync.updateables.add(topBarButtonFG);
         ChromaSync.updateables.add(nestedSettingOpenMenu);
+        ChromaSync.updateables.add(shulkPreviewBG);
+        ChromaSync.updateables.add(shulkPreviewFG);
+
     }
 
     public static Setting<NanoColor> topbarBG = new Setting<NanoColor>()
@@ -125,6 +133,18 @@ public class Theme extends Module {
             .setDefaultVal(new NanoColor(0x606060).withAlpha(0xff))
             .withType(NanoColor.class);
 
+    public static Setting<NanoColor> shulkPreviewBG = new Setting<NanoColor>()
+            .setName("Shulker BG")
+            .setConfigName("ShulkerBG")
+            .setDefaultVal(NanoColor.fromColor(Color.BLACK))
+            .withType(NanoColor.class);
+
+    public static Setting<NanoColor> shulkPreviewFG = new Setting<NanoColor>()
+            .setName("Shulker FG")
+            .setConfigName("ShulkerFG")
+            .setDefaultVal(NanoColor.fromColor(Color.WHITE))
+            .withType(NanoColor.class);
+
     public static Setting<Boolean> drawSliderBorder = new Setting<Boolean>()
             .setName("Draw Slider Border")
             .setConfigName("ThemeSliderBorder")
@@ -152,5 +172,7 @@ public class Theme extends Module {
         topBarButtonFG.setVal(topBarButtonFG.getDefault());
         topBarButtonHover.setVal(topBarButtonHover.getDefault());
         nestedSettingOpenMenu.setVal(nestedSettingOpenMenu.getDefault());
+        shulkPreviewBG.setVal(shulkPreviewBG.getDefault());
+        shulkPreviewFG.setVal(shulkPreviewFG.getDefault());
     }
 }

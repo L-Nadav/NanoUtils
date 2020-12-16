@@ -1,16 +1,27 @@
 package com.kyozm.nanoutils.modules.render;
 
+import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.gui.widgets.modules.MapPreviewWidget;
 import com.kyozm.nanoutils.modules.Module;
 import com.kyozm.nanoutils.modules.ModuleCategory;
+import com.kyozm.nanoutils.modules.ModuleManager;
 import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.ChromaSync;
-import com.kyozm.nanoutils.utils.FontDrawer;
+import com.kyozm.nanoutils.utils.Clipboard;
+import com.kyozm.nanoutils.utils.InputUtils;
+import com.kyozm.nanoutils.utils.MapUtils;
 import com.kyozm.nanoutils.utils.NanoColor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.storage.MapData;
 import org.lwjgl.input.Keyboard;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
 
@@ -23,11 +34,15 @@ public class MapPreview extends Module {
         bind = Keyboard.KEY_NONE;
         desc = "Renders map data on tooltip and screen.";
 
-        saveablePositions.put("OffhandDisplay", new MapPreviewWidget( 100, 100, 65, 65 ));
+        MapPreviewWidget widget = new MapPreviewWidget( 100, 100, 65, 65 );
+        saveablePositions.put("MapDisplay", widget);
+        NanoUtils.gui.queue.add(widget);
 
         tooltipDisplay.register(tooltipBorder);
         tooltipDisplay.register(tooltipScale);
         tooltipDisplay.register(drawStackName);
+        tooltipDisplay.register(copyTooltip);
+        tooltipDisplay.register(clipboardScale);
         registerSetting(MapPreview.class, tooltipDisplay);
 
         itemStackDisplay.register(drawStackQuantity);
@@ -35,15 +50,17 @@ public class MapPreview extends Module {
         itemStackDisplay.register(hideStackDisplay);
         registerSetting(MapPreview.class, itemStackDisplay);
 
-        offHandDisplay.register(offHandDisplayBorderColor);
-        offHandDisplay.register(offHandDisplayThirdPersonOnly);
-        offHandDisplay.register(offHandDisplayScale);
-        offHandDisplay.register(offHandDisplayBorderSize);
-        registerSetting(MapPreview.class, offHandDisplay);
+        mapDisplay.register(mapDisplayBorderColor);
+        mapDisplay.register(mapDisplayThirdPerson);
+        mapDisplay.register(mapDisplayScale);
+        mapDisplay.register(mapDisplayBorderSize);
+        mapDisplay.register(mapDisplayAutoOffhand);
+        mapDisplay.register(mapDisplaySetMap);
+        registerSetting(MapPreview.class, mapDisplay);
 
         registerSetting(MapPreview.class, cache);
 
-        ChromaSync.updateables.add(offHandDisplayBorderColor);
+        ChromaSync.updateables.add(mapDisplayBorderColor);
         ChromaSync.updateables.add(tooltipBorder);
     }
 
@@ -65,28 +82,34 @@ public class MapPreview extends Module {
             .setDefaultVal(false)
             .withType(Boolean.class);
 
-    public static NestedSetting offHandDisplay = new NestedSetting()
-            .setName("Off Hand Display")
-            .setConfigName("MapPreviewOffHandDisplay")
+    public static NestedSetting mapDisplay = new NestedSetting()
+            .setName("Map Display")
+            .setConfigName("MapPreviewDisplay")
             .setExtraWidth(10)
             .setDefaultVal(false)
             .withType(NestedSetting.class);
 
-    public static Setting<Boolean> offHandDisplayThirdPersonOnly = new Setting<Boolean>()
+    public static Setting<Boolean> mapDisplayThirdPerson = new Setting<Boolean>()
             .setName("Third Person Only")
-            .setConfigName("MapPreviewOffHandDisplayThirdPerson")
+            .setConfigName("MapPreviewMapDisplayThirdPerson")
             .setDefaultVal(false)
             .withType(Boolean.class);
 
-    public static Setting<NanoColor> offHandDisplayBorderColor = new Setting<NanoColor>()
+    public static Setting<Boolean> mapDisplayAutoOffhand = new Setting<Boolean>()
+            .setName("AutoPull from OffHand")
+            .setConfigName("MapPreviewMapDisplayAutoPullOffhand")
+            .setDefaultVal(false)
+            .withType(Boolean.class);
+
+    public static Setting<NanoColor> mapDisplayBorderColor = new Setting<NanoColor>()
             .setName("Border")
-            .setConfigName("MapPreviewOffHandDisplayBorderColor")
+            .setConfigName("MapPreviewMapDisplayBorderColor")
             .setDefaultVal(NanoColor.fromColor(Color.WHITE))
             .withType(NanoColor.class);
 
-    public static Setting<Float> offHandDisplayScale = new Setting<Float>()
+    public static Setting<Float> mapDisplayScale = new Setting<Float>()
             .setName("Scale")
-            .setConfigName("MapPreviewOffHandDisplayScale")
+            .setConfigName("MapPreviewMapDisplayScale")
             .setDefaultVal(1f)
             .setMinVal(0.1f)
             .setMaxVal(6f)
@@ -94,9 +117,9 @@ public class MapPreview extends Module {
             .setExtraWidth(80)
             .withType(Float.class);
 
-    public static Setting<Integer> offHandDisplayBorderSize = new Setting<Integer>()
+    public static Setting<Integer> mapDisplayBorderSize = new Setting<Integer>()
             .setName("Border Size")
-            .setConfigName("MapPreviewOffHandDisplayBorderSize")
+            .setConfigName("MapPreviewMapDisplayBorderSize")
             .setDefaultVal(2)
             .setMinVal(0)
             .setMaxVal(10)
@@ -138,15 +161,74 @@ public class MapPreview extends Module {
             .withType(Float.class);
 
     public static Setting<KeyBinding> hideStackDisplay = new Setting<KeyBinding>()
-            .setName("Hide Stack Display")
+            .setName("Hide")
             .setConfigName("MapPreviewStackHide")
             .setDefaultVal(new KeyBinding("Hide Stack Display", Keyboard.KEY_NONE, "NanoUtils"))
             .setExtraWidth(50)
             .withType(KeyBinding.class);
 
+    public static Setting<KeyBinding> copyTooltip = new Setting<KeyBinding>()
+            .setName("Copy to Clipboard")
+            .setConfigName("MapPreviewCopy")
+            .setDefaultVal(new KeyBinding("Copy Map to Clip", Keyboard.KEY_NONE, "NanoUtils"))
+            .setExtraWidth(50)
+            .withType(KeyBinding.class);
+
+    public static Setting<KeyBinding> mapDisplaySetMap = new Setting<KeyBinding>()
+            .setName("Set Map")
+            .setConfigName("MapPreviewMapDisplaySetMap")
+            .setDefaultVal(new KeyBinding("Set Display Map", Keyboard.KEY_NONE, "NanoUtils"))
+            .setExtraWidth(50)
+            .withType(KeyBinding.class);
+
+    public static Setting<Float> clipboardScale = new Setting<Float>()
+            .setName("Clipboard Scale")
+            .setConfigName("MapPreviewTooltipClipboard")
+            .setDefaultVal(1f)
+            .setMinVal(0.1f)
+            .setMaxVal(6f)
+            .withStep(0.05f)
+            .setExtraWidth(60)
+            .withType(Float.class);
+
     public static int tooltipX;
     public static int tooltipY;
     public static boolean activeTooltip = false;
     public static ItemStack tooltipStack;
+    public static ItemStack displayStack;
 
+    public static void drawTooltip() {
+        if (MapPreview.activeTooltip) {
+            int x = MapPreview.tooltipX + 4;
+            if (MapPreview.drawStackName.getVal())
+                NanoUtils.gui.drawTooltip(String.format("x%s §o%s",  MapPreview.tooltipStack.getCount(), MapPreview.tooltipStack.getDisplayName()), x - 3, MapPreview.tooltipY - 2);
+            int w = (int) (64 * MapPreview.tooltipScale.getVal());
+            int h = (int) (64 * MapPreview.tooltipScale.getVal());
+            GlStateManager.disableDepth();
+            GlStateManager.disableLighting();
+            Gui.drawRect(x + 3, MapPreview.tooltipY + 3, x + 3 + w + 4, MapPreview.tooltipY + 5 + h + 2, MapPreview.tooltipBorder.getVal().getRGB());
+            GlStateManager.disableDepth();
+            GlStateManager.enableLighting();
+            MapUtils.renderMapFromStack(MapPreview.tooltipStack, x + 5, MapPreview.tooltipY + 5, MapPreview.tooltipScale.getVal(), MapPreview.cache.getVal());
+            MapPreview.activeTooltip = false;
+
+            if (InputUtils.wasKeybindJustPressed(MapPreview.copyTooltip.getVal())) {
+                MapData md = MapUtils.mapDataFromStack(MapPreview.tooltipStack);
+                Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[NanoUtils] Copied map data to Clipboard"));
+                Clipboard.writeImageToClipboard(MapUtils.mapToImage(md.colors, MapPreview.clipboardScale.getVal()));
+            }
+        }
+    }
+
+    public static void onTooltip(ItemStack stack, int x, int y, CallbackInfo callback) {
+        if (MapPreview.tooltipDisplay.getVal() && ModuleManager.isActive(MapPreview.class) && stack.getItem() instanceof ItemMap) {
+            MapData mapData = MapUtils.mapDataFromStack(stack);
+            if (mapData == null && MapUtils.tryMapCache("map_" + stack.getMetadata()) == null) return;
+            callback.cancel();
+            MapPreview.activeTooltip = true;
+            MapPreview.tooltipX = x;
+            MapPreview.tooltipY = y;
+            MapPreview.tooltipStack = stack;
+        }
+    }
 }

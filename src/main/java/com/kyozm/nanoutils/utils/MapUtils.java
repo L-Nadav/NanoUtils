@@ -2,6 +2,7 @@ package com.kyozm.nanoutils.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemMap;
@@ -10,6 +11,8 @@ import net.minecraft.world.storage.MapData;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -139,6 +142,18 @@ public class MapUtils {
             return c;
         }
         return null;
+    }
+
+    public static Image mapToImage(byte[] colors, float scale) {
+        BufferedImage buffer = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < 16384; ++i) {
+            int j = colors[i] & 255;
+            if (j / 4 == 0)
+                buffer.setRGB(i % 128, i / 128, (i + i / 128 & 1) * 8 + 16 << 24);
+            else
+                buffer.setRGB(i % 128, i / 128, MapColor.COLORS[j / 4].getMapColor(j & 3));
+        }
+        return buffer.getScaledInstance((int) (128 * scale), (int) (128 * scale), Image.SCALE_FAST);
     }
 
 }

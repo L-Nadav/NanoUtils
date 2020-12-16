@@ -38,10 +38,10 @@ public class SaturationBrightnessGrid extends Widget {
         GlStateManager.pushMatrix();
             GlStateManager.translate(screenX, screenY + height, 0.0);
             GL11.glRotated(270,0, 0, 1);
-            GuiUtils.drawGradientRect(100, 0, 0, width, height, Color.WHITE.getRGB(), Color.getHSBColor(currentHUE, 1f, 1f).getRGB());
+            GuiUtils.drawGradientRect(0, 0, 0, width, height, Color.WHITE.getRGB(), Color.getHSBColor(currentHUE, 1f, 1f).getRGB());
         GlStateManager.popMatrix();
 
-        GuiUtils.drawGradientRect(100, screenX, screenY, width + screenX, height + screenY, 0x00000000, Color.BLACK.getRGB());
+        GuiUtils.drawGradientRect(0, screenX, screenY, width + screenX, height + screenY, 0x00000000, Color.BLACK.getRGB());
 
         if (currentSaturation + currentBrightness < 98) {
             Gui.drawRect(screenX + (int) ((float) width * (float) currentSaturation / 100f), screenY, screenX + (int) ((float) width * (float) currentSaturation / 100f) +1, screenY+height, Color.BLACK.getRGB());
@@ -49,7 +49,6 @@ public class SaturationBrightnessGrid extends Widget {
         } else {
             Gui.drawRect(screenX + (int) ((float) width * (float) currentSaturation / 100f), screenY, screenX + (int) ((float) width * (float) currentSaturation / 100f) +1, screenY+height, Color.WHITE.getRGB());
             Gui.drawRect(screenX, screenY + (int) ((float) height * (float) currentBrightness / 100f), screenX + width, screenY + (int) ((float) height * (float) currentBrightness / 100f) +1, Color.WHITE.getRGB());
-
         }
 
     }

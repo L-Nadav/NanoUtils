@@ -7,12 +7,14 @@ import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
 import com.kyozm.nanoutils.modules.gui.Theme;
 import com.kyozm.nanoutils.modules.render.Earthquake;
 import com.kyozm.nanoutils.modules.render.MapPreview;
+import com.kyozm.nanoutils.modules.render.ShulkerPreview;
 import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.ChromaSync;
 import com.kyozm.nanoutils.utils.Config;
 import com.kyozm.nanoutils.utils.Keybinds;
 import com.kyozm.nanoutils.utils.NanoColor;
+import com.kyozm.nanoutils.utils.TickTimer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class ModuleManager {
     public static ArrayList<Module> active = new ArrayList<>();
     public static ArrayList<Module> registered = new ArrayList<>();
+    public static Map<String, TickTimer> timers = new HashMap<>();
     public static Map<Class, List<Setting>> settings = new HashMap<>();
 
     public static void register() {
@@ -37,7 +40,7 @@ public class ModuleManager {
 
         // RENDER
         registered.add(new MapPreview());
-        registered.add(new Earthquake()); //For the LOLZ haha
+        registered.add(new ShulkerPreview());
 
         Config.loadConfig();
     }
@@ -61,6 +64,7 @@ public class ModuleManager {
 
     public static void clientTick() {
         active.forEach(Module::onTick);
+        timers.forEach((k, timer) -> timer.step());
     }
 
     public static void enable(Class module) {
@@ -99,6 +103,8 @@ public class ModuleManager {
             if(Keyboard.getEventKey() == Keyboard.KEY_NONE) return;
             registered.stream().filter(m -> m.bind == Keyboard.getEventKey()).forEach(Module::toggle);
         }
+
+        registered.forEach(Module::onKeyInput);
     }
 
     public static void registerSetting(Class mod, Setting s) {
@@ -157,5 +163,11 @@ public class ModuleManager {
                 NanoUtils.gui.queue.add(widget);
                 mod.saveablePositions.put(id, widget);
         }));
+    }
+
+    public static boolean isTimerExpired(String tooltipClipboard) {
+        if (timers.containsKey(tooltipClipboard))
+            return timers.get(tooltipClipboard).isExpired;
+        return true;
     }
 }

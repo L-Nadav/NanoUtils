@@ -114,9 +114,9 @@ public class Config {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(NanoColor.class,  colorJsonDeserializer);
         gsonBuilder.registerTypeAdapter(NanoColor.class,  colorJsonSerializer);
-
         gsonBuilder.registerTypeAdapter(KeyBinding.class,  bindJsonDeserializer);
         gsonBuilder.registerTypeAdapter(KeyBinding.class,  bindJsonSerializer);
+        gsonBuilder.setPrettyPrinting();
         return gsonBuilder.create();
     }
 

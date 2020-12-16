@@ -53,7 +53,7 @@ public class NanoGui extends GuiScreen {
             TopBarButton topBarButton = new TopBarButton(horizontalPos * 2, 0, FontDrawer.getStringWidth(category.toString()) + 8, 12, category);
             Button bWidget = new Button(topBarButton);
             queue.add(bWidget);
-            horizontalPos += (FontDrawer.getStringWidth(category.toString()) + FontDrawer.getStringWidth(" "));
+            horizontalPos += (FontDrawer.getStringWidth(category.toString()));
         }
     }
 

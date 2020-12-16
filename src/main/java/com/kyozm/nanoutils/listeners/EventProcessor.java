@@ -4,6 +4,8 @@ import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.modules.render.MapPreview;
 import com.kyozm.nanoutils.utils.Config;
 import com.kyozm.nanoutils.utils.MapUtils;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -18,6 +20,8 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+
+import java.awt.*;
 
 public class EventProcessor {
     public static EventProcessor INSTANCE;
@@ -57,6 +61,7 @@ public class EventProcessor {
     public void onLivingDamage(LivingDamageEvent event){
         NanoUtils.EVENT_BUS.post(event);
     }
+
     @SubscribeEvent
     public void onLivingEntityUseItemFinish(LivingEntityUseItemEvent.Finish event) {
         NanoUtils.EVENT_BUS.post(event);
@@ -83,11 +88,19 @@ public class EventProcessor {
 
     @SubscribeEvent
     public void onGuiScreen(GuiScreenEvent event) {
-        //Config.loadConfig();
         if (MapPreview.activeTooltip) {
-            MapUtils.renderMapFromStack(MapPreview.tooltipStack, MapPreview.tooltipX, MapPreview.tooltipY, 1f, MapPreview.cache.getVal());
+            int x = MapPreview.tooltipX + 4;
+            if (MapPreview.drawStackName.getVal())
+                NanoUtils.gui.drawTooltip(String.format("x%s §o%s",  MapPreview.tooltipStack.getCount(), MapPreview.tooltipStack.getDisplayName()), x - 3, MapPreview.tooltipY - 2);
+            int w = (int) (64 * MapPreview.tooltipScale.getVal());
+            int h = (int) (64 * MapPreview.tooltipScale.getVal());
+            GlStateManager.disableDepth();
+            GlStateManager.disableLighting();
+            Gui.drawRect(x + 3, MapPreview.tooltipY + 3, x + 3 + w + 4, MapPreview.tooltipY + 5 + h + 2, MapPreview.tooltipBorder.getVal().getRGB());
+            GlStateManager.disableDepth();
+            GlStateManager.enableLighting();
+            MapUtils.renderMapFromStack(MapPreview.tooltipStack, x + 5, MapPreview.tooltipY + 5, MapPreview.tooltipScale.getVal(), MapPreview.cache.getVal());
             MapPreview.activeTooltip = false;
-            MapPreview.tooltipStack = null;
         }
     }
 

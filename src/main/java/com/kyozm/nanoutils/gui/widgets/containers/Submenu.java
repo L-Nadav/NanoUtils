@@ -4,16 +4,18 @@ import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.buttons.Button;
 import com.kyozm.nanoutils.gui.widgets.buttons.TopBarButton;
+import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
+import com.kyozm.nanoutils.modules.gui.Theme;
+import com.kyozm.nanoutils.utils.NanoColor;
 import net.minecraft.client.gui.Gui;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Submenu extends Widget {
 
     public List<Widget> plainElements = new ArrayList<>();
-    public Color bg = new Color(0x000000);
+    public NanoColor bg = Theme.submenuBG.getVal();
 
     public Submenu(Widget parent) {
         this.parent = parent;
@@ -21,7 +23,7 @@ public class Submenu extends Widget {
         depthCalc();
     }
 
-    private void depthCalc() {
+    public void depthCalc() {
         ArrayList<Widget> depth = new ArrayList<>();
         depth.add(this);
         Widget p = parent;
@@ -29,7 +31,8 @@ public class Submenu extends Widget {
             depth.add(p);
             p = p.parent;
         }
-        NanoUtils.gui.updateDepth(depth);
+        if (depth != NanoUtils.gui.depth)
+            NanoUtils.gui.updateDepth(depth);
     }
 
     public void setPositionBasedOnParent() {
@@ -45,6 +48,7 @@ public class Submenu extends Widget {
     }
 
     public void drawBackdrop() {
+        bg = Theme.submenuBG.getVal();
         Gui.drawRect(screenX - 1, screenY - 1, screenX + width + 1, screenY + height, bg.getRGB());
     }
 

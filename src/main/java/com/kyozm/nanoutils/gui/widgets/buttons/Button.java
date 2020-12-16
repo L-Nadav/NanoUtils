@@ -2,7 +2,9 @@ package com.kyozm.nanoutils.gui.widgets.buttons;
 
 import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.gui.widgets.Widget;
+import com.kyozm.nanoutils.utils.InputUtils;
 import org.lwjgl.input.Mouse;
+import scala.Tuple4;
 
 public class Button extends Widget {
     public NanoButton button;
@@ -22,7 +24,8 @@ public class Button extends Widget {
         button.y = screenY;
         button.width = width;
         button.height = height;
-        button.drawButton(mc, Mouse.getEventX() / NanoUtils.sr.getScaleFactor(), (mc.displayHeight - Mouse.getEventY()) / NanoUtils.sr.getScaleFactor(), 1f);
+        Tuple4<Integer, Integer, Integer, Boolean> mouseData = InputUtils.getMouseData();
+        button.drawButton(mc, mouseData._1(), mouseData._2(), 1f);
     }
 
 

@@ -1,5 +1,7 @@
 package com.kyozm.nanoutils.gui.widgets;
 
+import com.kyozm.nanoutils.NanoUtils;
+
 public class Draggable  extends Widget {
     public boolean canDrag;
     public boolean dragging;
@@ -18,5 +20,16 @@ public class Draggable  extends Widget {
     public void setPos(int x, int y) {
         this.screenX = x;
         this.screenY = y;
+    }
+
+    @Override
+    public void render() {
+        if (screenX > NanoUtils.sr.getScaledWidth()) {
+            setPos(screenX  - width, screenY);
+        }
+
+        if (screenY > NanoUtils.sr.getScaledHeight()) {
+            setPos(screenX, screenY - height);
+        }
     }
 }

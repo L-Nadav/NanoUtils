@@ -1,7 +1,13 @@
 package com.kyozm.nanoutils.modules;
 
+import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.settings.Setting;
 import net.minecraft.client.Minecraft;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class Module {
 
@@ -12,6 +18,7 @@ public abstract class Module {
     public ModuleCategory category;
     public int bind;
     public String desc = "Module";
+    public Map<String, Widget> saveablePositions = new HashMap<>();
 
     public void registerSetting(Class mod, Setting s) {
         ModuleManager.registerSetting(mod, s);

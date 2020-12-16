@@ -13,8 +13,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ModuleManagerDriver {
 
-    public static Float debugFloat = 0.5f;
-
     @SubscribeEvent()
     public void ticker(TickEvent.ClientTickEvent e) {
         ModuleManager.clientTick();
@@ -22,7 +20,6 @@ public class ModuleManagerDriver {
 
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent.Post event) {
-        debugFloat = 0.7f;
         Minecraft mc = Minecraft.getMinecraft();
 
         if (event.isCanceled())

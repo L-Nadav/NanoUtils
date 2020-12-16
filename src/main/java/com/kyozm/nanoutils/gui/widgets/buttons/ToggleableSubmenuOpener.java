@@ -1,5 +1,9 @@
 package com.kyozm.nanoutils.gui.widgets.buttons;
 
+import com.kyozm.nanoutils.gui.widgets.containers.Submenu;
+import com.kyozm.nanoutils.modules.gui.Theme;
+import net.minecraft.client.Minecraft;
+
 import java.awt.*;
 
 public class ToggleableSubmenuOpener extends SubmenuOpener {
@@ -7,12 +11,12 @@ public class ToggleableSubmenuOpener extends SubmenuOpener {
     public Color bg;
     public Color fg;
 
-    protected Color bgEnabled = new Color(0xAA737373, true);
-    protected Color bgDisabled = new Color(0xAA282828, true);
-    protected Color bgHover = new Color(0xAA565656, true);
+    protected Color bgEnabled = Theme.buttonEnabledBG.getVal();
+    protected Color bgDisabled = Theme.buttonDisabledBG.getVal();
+    protected Color bgHover = Theme.buttonHoverBG.getVal();
 
-    protected Color fgEnabled = new Color(0xFFFFFF);
-    protected Color fgDisabled = new Color(0x969696);
+    protected Color fgEnabled = Theme.buttonEnabledFG.getVal();
+    protected Color fgDisabled = Theme.buttonDisabledFG.getVal();
 
     public boolean toggled = false;
 
@@ -33,7 +37,12 @@ public class ToggleableSubmenuOpener extends SubmenuOpener {
         toggled = !toggled;
     }
 
-    public void openSubmenu() {
+    @Override
+    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        boolean hover = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
+        if (hover) {
+            ((Submenu) getWrapper().parent).depthCalc();
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.kyozm.nanoutils.gui.NanoGui;
 import com.kyozm.nanoutils.listeners.EventProcessor;
 import com.kyozm.nanoutils.listeners.ModuleManagerDriver;
 import com.kyozm.nanoutils.modules.ModuleManager;
+import com.kyozm.nanoutils.utils.Keybinds;
 import com.kyozm.nanoutils.utils.ShutdownHook;
 import me.zero.alpine.EventBus;
 import me.zero.alpine.EventManager;
@@ -40,6 +41,8 @@ public class NanoUtils
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
+        Keybinds.register();
+        ModuleManager.register();
     }
 
     @EventHandler
@@ -47,7 +50,6 @@ public class NanoUtils
     {
         eventProcessor = new EventProcessor();
         eventProcessor.init();
-        ModuleManager.register();
         MinecraftForge.EVENT_BUS.register(new ModuleManagerDriver());
         logger.info("NanoUtils Initialized!");
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());

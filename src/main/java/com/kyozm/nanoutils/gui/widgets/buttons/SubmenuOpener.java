@@ -9,4 +9,8 @@ public class SubmenuOpener extends NanoButton {
     public void onPress(int mouseButton) {
         // Create Submenu and assign it to the opener
     }
+
+    public void openSubmenu() {
+
+    }
 }

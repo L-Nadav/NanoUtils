@@ -28,10 +28,12 @@ public class FloatSlider extends Slider {
         Gui.drawRect(screenX, screenY, screenX + (int) ( (float) width * (float)getPct() / 100f), screenY + height, bg.getRGB());
 
         //lines
-        Gui.drawRect(screenX, screenY, screenX + width, screenY + 1, bg.getRGB());
-        Gui.drawRect(screenX, screenY + height - 1, screenX + width, screenY + height, bg.getRGB());
-        Gui.drawRect(screenX + width, screenY, screenX + width - 1, screenY + height, bg.getRGB());
-        Gui.drawRect(screenX, screenY, screenX + 1, screenY + height, bg.getRGB());
+        if (Theme.drawSliderBorder.getVal()) {
+            Gui.drawRect(screenX, screenY, screenX + width, screenY + 1, bg.getRGB());
+            Gui.drawRect(screenX, screenY + height - 1, screenX + width, screenY + height, bg.getRGB());
+            Gui.drawRect(screenX + width, screenY, screenX + width - 1, screenY + height, bg.getRGB());
+            Gui.drawRect(screenX, screenY, screenX + 1, screenY + height, bg.getRGB());
+        }
         FontDrawer.drawString(hovering ? String.format("%.2f", setting.getVal()) : setting.name, screenX+3, screenY+3, fg);
         float pct = MathUtil.percent(0, 1000, milliPct);
         if (setting.step == null)

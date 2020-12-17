@@ -1,11 +1,6 @@
 package com.kyozm.nanoutils.listeners;
 
 import com.kyozm.nanoutils.NanoUtils;
-import com.kyozm.nanoutils.events.TooltipRenderEvent;
-import com.kyozm.nanoutils.modules.render.MapPreview;
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listenable;
-import me.zero.alpine.listener.Listener;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -21,7 +16,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
-public class EventProcessor implements Listenable {
+public class EventProcessor {
     public static EventProcessor INSTANCE;
     public EventProcessor(){
         INSTANCE = this;

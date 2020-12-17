@@ -16,7 +16,6 @@ import com.kyozm.nanoutils.utils.InputUtils;
 import com.kyozm.nanoutils.utils.MapUtils;
 import com.kyozm.nanoutils.utils.NanoColor;
 import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -33,7 +32,7 @@ import org.lwjgl.input.Keyboard;
 import java.awt.*;
 
 
-public class MapPreview extends Module implements Listenable {
+public class MapPreview extends Module {
 
     public MapPreview() {
         name = "Map Preview";

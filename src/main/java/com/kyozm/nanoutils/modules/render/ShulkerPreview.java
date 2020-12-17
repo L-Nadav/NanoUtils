@@ -8,36 +8,29 @@ import com.kyozm.nanoutils.modules.ModuleManager;
 import com.kyozm.nanoutils.modules.gui.Theme;
 import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.FontDrawer;
-import com.kyozm.nanoutils.utils.InputUtils;
 import com.kyozm.nanoutils.utils.NBTUtils;
 import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Method;
 
 import static org.lwjgl.opengl.GL11.glDepthRange;
 
-public class ShulkerPreview extends Module implements Listenable {
+public class ShulkerPreview extends Module {
 
     public ShulkerPreview() {
         name = "Shulker Preview";

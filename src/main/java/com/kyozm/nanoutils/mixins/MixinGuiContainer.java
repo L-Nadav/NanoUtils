@@ -2,7 +2,6 @@ package com.kyozm.nanoutils.mixins;
 
 import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.events.DrawSlotEvent;
-import me.zero.alpine.event.type.Cancellable;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +14,7 @@ public class MixinGuiContainer {
 
     @Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
     public void drawSlot(Slot slot, CallbackInfo callbackInfo) {
-        Cancellable evt = new DrawSlotEvent(slot);
+        DrawSlotEvent evt = new DrawSlotEvent(slot);
         NanoUtils.EVENT_BUS.post(evt);
         if (evt.isCancelled())
             callbackInfo.cancel();

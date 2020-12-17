@@ -1,6 +1,8 @@
 package com.kyozm.nanoutils.modules.render;
 
 import com.kyozm.nanoutils.NanoUtils;
+import com.kyozm.nanoutils.events.DrawSlotEvent;
+import com.kyozm.nanoutils.events.TooltipRenderEvent;
 import com.kyozm.nanoutils.gui.widgets.modules.MapPreviewWidget;
 import com.kyozm.nanoutils.modules.Module;
 import com.kyozm.nanoutils.modules.ModuleCategory;
@@ -9,24 +11,29 @@ import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.ChromaSync;
 import com.kyozm.nanoutils.utils.Clipboard;
+import com.kyozm.nanoutils.utils.FontDrawer;
 import com.kyozm.nanoutils.utils.InputUtils;
 import com.kyozm.nanoutils.utils.MapUtils;
 import com.kyozm.nanoutils.utils.NanoColor;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listenable;
+import me.zero.alpine.listener.Listener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.storage.MapData;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import org.lwjgl.input.Keyboard;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
 
 
-public class MapPreview extends Module {
+public class MapPreview extends Module implements Listenable {
 
     public MapPreview() {
         name = "Map Preview";
@@ -197,7 +204,8 @@ public class MapPreview extends Module {
     public static ItemStack tooltipStack;
     public static ItemStack displayStack;
 
-    public static void drawTooltip() {
+    @EventHandler
+    private Listener<GuiScreenEvent.DrawScreenEvent.Post> drawListener = new Listener<>(event -> {
         if (MapPreview.activeTooltip) {
             int x = MapPreview.tooltipX + 4;
             if (MapPreview.drawStackName.getVal())
@@ -218,17 +226,60 @@ public class MapPreview extends Module {
                 Clipboard.writeImageToClipboard(MapUtils.mapToImage(md.colors, MapPreview.clipboardScale.getVal()));
             }
         }
+    });
+
+    @EventHandler
+    private Listener<TooltipRenderEvent> tooltipListener = new Listener<>(e -> {
+        if (MapPreview.tooltipDisplay.getVal() && ModuleManager.isActive(MapPreview.class) && e.stack.getItem() instanceof ItemMap) {
+            MapData mapData = MapUtils.mapDataFromStack(e.stack);
+            if (mapData == null && MapUtils.tryMapCache("map_" + e.stack.getMetadata()) == null) return;
+            e.cancel();
+            MapPreview.activeTooltip = true;
+            MapPreview.tooltipX = e.mouseX;
+            MapPreview.tooltipY = e.mouseY;
+            MapPreview.tooltipStack = e.stack;
+        }
+    });
+
+    @EventHandler
+    private Listener<DrawSlotEvent> slotEvent = new Listener<>(event -> {
+        Slot slot = event.s;
+        if (!slot.getHasStack())
+            return;
+        ItemStack itemStack = slot.getStack();
+        if (MapPreview.itemStackDisplay.getVal() && itemStack.getItem() instanceof ItemMap) {
+            int x = slot.xPos - 1;
+            int y = slot.yPos - 1;
+
+            if (MapPreview.tooltipStack != null && itemStack == MapPreview.tooltipStack && MapPreview.revealItemOnHover.getVal()) {
+                MapPreview.tooltipStack = null;
+                return;
+            }
+
+            if (InputUtils.isKeybindHeld(MapPreview.hideStackDisplay.getVal()))
+                return;
+
+            if (MapUtils.renderMapFromStack(itemStack, x, y, 0.29f, MapPreview.cache.getVal())) { // do not question the float magick
+                event.cancel();
+                if (MapPreview.drawStackQuantity.getVal()) {
+                    if (itemStack.getCount() > 1) {
+                        String count = String.valueOf(itemStack.getCount());
+                        FontDrawer.drawString(count, x + 19 - FontDrawer.getStringWidth(count), y + 22 - FontDrawer.getFontHeight(), Color.DARK_GRAY);
+                        FontDrawer.drawString(count, x + 18 - FontDrawer.getStringWidth(count), y + 21 - FontDrawer.getFontHeight(), Color.WHITE);
+                    }
+                }
+            }
+        }
+    });
+
+    @Override
+    public void onEnable() {
+        NanoUtils.EVENT_BUS.subscribe(this);
     }
 
-    public static void onTooltip(ItemStack stack, int x, int y, CallbackInfo callback) {
-        if (MapPreview.tooltipDisplay.getVal() && ModuleManager.isActive(MapPreview.class) && stack.getItem() instanceof ItemMap) {
-            MapData mapData = MapUtils.mapDataFromStack(stack);
-            if (mapData == null && MapUtils.tryMapCache("map_" + stack.getMetadata()) == null) return;
-            callback.cancel();
-            MapPreview.activeTooltip = true;
-            MapPreview.tooltipX = x;
-            MapPreview.tooltipY = y;
-            MapPreview.tooltipStack = stack;
-        }
+    @Override
+    public void onDisable() {
+        NanoUtils.EVENT_BUS.unsubscribe(this);
     }
+
 }

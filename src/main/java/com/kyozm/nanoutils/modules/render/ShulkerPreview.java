@@ -1,5 +1,7 @@
 package com.kyozm.nanoutils.modules.render;
 
+import com.kyozm.nanoutils.NanoUtils;
+import com.kyozm.nanoutils.events.TooltipRenderEvent;
 import com.kyozm.nanoutils.modules.Module;
 import com.kyozm.nanoutils.modules.ModuleCategory;
 import com.kyozm.nanoutils.modules.ModuleManager;
@@ -8,6 +10,9 @@ import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.FontDrawer;
 import com.kyozm.nanoutils.utils.InputUtils;
 import com.kyozm.nanoutils.utils.NBTUtils;
+import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listenable;
+import me.zero.alpine.listener.Listener;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,9 +22,14 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.InputUpdateEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -27,7 +37,7 @@ import java.lang.reflect.Method;
 
 import static org.lwjgl.opengl.GL11.glDepthRange;
 
-public class ShulkerPreview extends Module {
+public class ShulkerPreview extends Module implements Listenable {
 
     public ShulkerPreview() {
         name = "Shulker Preview";
@@ -38,13 +48,6 @@ public class ShulkerPreview extends Module {
         registerSetting(ShulkerPreview.class, darkMode);
     }
 
-    public static Setting<KeyBinding> pin = new Setting<KeyBinding>()
-            .setName("Pin")
-            .setConfigName("ShulkerPreviewPin")
-            .setDefaultVal(new KeyBinding("Pin Shulker", Keyboard.KEY_LSHIFT, "NanoUtils"))
-            .setExtraWidth(50)
-            .withType(KeyBinding.class);
-
     public static Setting<Boolean> darkMode = new Setting<Boolean>()
             .setName("Dark Mode")
             .setConfigName("ShulkPreviewDarkMode")
@@ -54,16 +57,27 @@ public class ShulkerPreview extends Module {
     public static boolean visible;
     public static int previewX;
     public static int previewY;
-    public static boolean pinned;
     public static ItemStack shulkerStack;
 
-    public static void drawTooltip() {
+    @EventHandler
+    private Listener<TooltipRenderEvent> tooltipListener = new Listener<TooltipRenderEvent>(e -> {
+        NonNullList<ItemStack> items = NBTUtils.getShulkerItems(e.stack);
+        if (items == null || !ModuleManager.isActive(ShulkerPreview.class)) return;
+
+        previewX = e.mouseX;
+        previewY = e.mouseY;
+        visible = true;
+        shulkerStack = e.stack;
+        e.cancel();
+    });
+
+    @EventHandler
+    private Listener<GuiScreenEvent.DrawScreenEvent.Post> drawListener = new Listener<>(event -> {
         if (!visible) return;
         NonNullList<ItemStack> items = NBTUtils.getShulkerItems(shulkerStack);
 
         int x = previewX + 8;
         int y = previewY - 8;
-
 
         IInventory dummyInv = new InventoryBasic(new TextComponentString("Cummy"), 1);
         GlStateManager.disableDepth();
@@ -85,7 +99,7 @@ public class ShulkerPreview extends Module {
                         slotTest.putStack(items.get(i * 9 + j));
                         glDepthRange(0, 0.01);
 
-                        Method m = GuiContainer.class.getDeclaredMethod("drawSlot", Slot.class);
+                        Method m = ReflectionHelper.findMethod(GuiContainer.class, "drawSlot", "func_146977_a", Slot.class);
                         m.setAccessible(true);
                         m.invoke(mc.currentScreen, slotTest);
                     }
@@ -98,21 +112,15 @@ public class ShulkerPreview extends Module {
         glDepthRange(0, 1.0);
         GlStateManager.enableDepth();
         visible = false;
-    }
+    });
 
-    public static void onTooltip(ItemStack stack, int x, int y, CallbackInfo callback) {
-        NonNullList<ItemStack> items = NBTUtils.getShulkerItems(stack);
-        if (items == null || !ModuleManager.isActive(ShulkerPreview.class)) return;
-
-        previewX = x;
-        previewY = y;
-        visible = true;
-        shulkerStack = stack;
-        callback.cancel();
+    @Override
+    public void onEnable() {
+        NanoUtils.EVENT_BUS.subscribe(this);
     }
 
     @Override
-    public void onRender() {
-        if (!InputUtils.isKeybindHeld(pin.getVal())) pinned = false;
+    public void onDisable() {
+        NanoUtils.EVENT_BUS.unsubscribe(this);
     }
 }

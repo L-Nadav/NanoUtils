@@ -162,7 +162,7 @@ public class Config {
                 Module m = Reflect.compile("modules." + FilenameUtils.removeExtension(mod.getName()), FileUtils.readFileToString(mod)).create().get();
                 modules.add(m);
             } catch (Exception e) {
-                System.out.println("Couldn't load module: " + mod.getName());
+                System.out.println("Couldn't load module: " + mod.getName() + "Cause :" + e.getMessage());
             }
         }
         return modules;

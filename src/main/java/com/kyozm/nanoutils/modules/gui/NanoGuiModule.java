@@ -5,12 +5,8 @@ import com.kyozm.nanoutils.gui.NanoGui;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.modules.Module;
 import com.kyozm.nanoutils.modules.ModuleCategory;
-import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
-import com.kyozm.nanoutils.utils.NanoColor;
 import org.lwjgl.input.Keyboard;
-
-import java.awt.*;
 
 public class NanoGuiModule extends Module {
 

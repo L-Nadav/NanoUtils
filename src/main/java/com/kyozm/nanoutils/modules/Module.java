@@ -18,6 +18,7 @@ public abstract class Module {
     public ModuleCategory category;
     public int bind;
     public String desc = "Module";
+    public String minVersion = "";
     public Map<String, Widget> saveablePositions = new HashMap<>();
 
     public void registerSetting(Class mod, Setting s) {

@@ -1,8 +1,6 @@
 package com.kyozm.nanoutils.gui.widgets.buttons;
 
 import com.kyozm.nanoutils.NanoUtils;
-import com.kyozm.nanoutils.gui.NanoGui;
-import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.containers.ModuleList;
 import com.kyozm.nanoutils.modules.ModuleCategory;
 import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
@@ -13,7 +11,6 @@ import net.minecraft.client.gui.Gui;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TopBarButton extends ToggleableSubmenuOpener {
 

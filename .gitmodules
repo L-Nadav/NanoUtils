@@ -1,0 +1,4 @@
+[submodule "src/main/java/modules"]
+	path = src/main/java/modules
+	url = git@alt.github.com:not-kyozm/modules.git
+	branch = main

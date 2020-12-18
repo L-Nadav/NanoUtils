@@ -68,6 +68,8 @@ dependencies {
     compile ('net.jodah:typetools:0.5.0') {
         exclude module: 'gson'
     }
+
+    compile "org.jooq:joor-java-8:0.9.13"
 }
 
 processResources {
@@ -94,6 +96,7 @@ shadowJar {
         include(dependency('org.spongepowered:mixin'))
         include(dependency('com.github.ZeroMemes:Alpine'))
         include(dependency('net.jodah:typetools'))
+        include(dependency('org.jooq:joor-java-8'))
     }
     exclude 'dummyThing'
     exclude 'LICENSE.txt'

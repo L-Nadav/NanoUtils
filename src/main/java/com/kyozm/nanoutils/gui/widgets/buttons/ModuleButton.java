@@ -1,11 +1,8 @@
 package com.kyozm.nanoutils.gui.widgets.buttons;
 
 import com.kyozm.nanoutils.NanoUtils;
-import com.kyozm.nanoutils.gui.widgets.containers.ModuleList;
 import com.kyozm.nanoutils.gui.widgets.containers.SettingsList;
-import com.kyozm.nanoutils.gui.widgets.containers.Submenu;
 import com.kyozm.nanoutils.modules.Module;
-import com.kyozm.nanoutils.modules.ModuleCategory;
 import com.kyozm.nanoutils.modules.ModuleManager;
 import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
 import com.kyozm.nanoutils.modules.gui.Theme;

@@ -1,13 +1,9 @@
 package com.kyozm.nanoutils.modules;
 
 import com.kyozm.nanoutils.NanoUtils;
-import com.kyozm.nanoutils.gui.NanoGui;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
 import com.kyozm.nanoutils.modules.gui.Theme;
-import com.kyozm.nanoutils.modules.render.Earthquake;
-import com.kyozm.nanoutils.modules.render.MapPreview;
-import com.kyozm.nanoutils.modules.render.ShulkerPreview;
 import com.kyozm.nanoutils.settings.NestedSetting;
 import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.ChromaSync;
@@ -39,8 +35,7 @@ public class ModuleManager {
         registered.add(new NanoGuiModule());
 
         // RENDER
-        registered.add(new MapPreview());
-        registered.add(new ShulkerPreview());
+        registered.addAll(Config.getRuntimeModules());
 
         Config.loadConfig();
     }

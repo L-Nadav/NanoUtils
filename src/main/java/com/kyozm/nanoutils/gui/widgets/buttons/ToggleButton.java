@@ -5,7 +5,6 @@ import com.kyozm.nanoutils.utils.FontDrawer;
 import com.kyozm.nanoutils.utils.InputUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import org.lwjgl.input.Mouse;
 import scala.Tuple4;
 
 import java.awt.*;

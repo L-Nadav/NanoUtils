@@ -6,10 +6,8 @@ import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.ChromaSync;
 import com.kyozm.nanoutils.utils.NanoColor;
 import org.lwjgl.input.Keyboard;
-import scala.actors.threadpool.Arrays;
 
 import java.awt.*;
-import java.util.stream.Stream;
 
 public class Theme extends Module {
 

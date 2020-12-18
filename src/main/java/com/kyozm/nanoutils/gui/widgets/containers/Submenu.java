@@ -4,7 +4,6 @@ import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.buttons.Button;
 import com.kyozm.nanoutils.gui.widgets.buttons.TopBarButton;
-import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
 import com.kyozm.nanoutils.modules.gui.Theme;
 import com.kyozm.nanoutils.utils.NanoColor;
 import net.minecraft.client.gui.Gui;

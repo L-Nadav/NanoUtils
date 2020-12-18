@@ -1,7 +1,6 @@
 package com.kyozm.nanoutils.gui.widgets.buttons.settings;
 
 import com.kyozm.nanoutils.NanoUtils;
-import com.kyozm.nanoutils.gui.NanoGui;
 import com.kyozm.nanoutils.gui.widgets.ColorPicker;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.buttons.SubmenuOpener;

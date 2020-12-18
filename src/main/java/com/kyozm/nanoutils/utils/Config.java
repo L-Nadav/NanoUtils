@@ -15,6 +15,9 @@ import com.kyozm.nanoutils.settings.Setting;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.common.Loader;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.joor.Reflect;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -22,6 +25,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +35,8 @@ import java.util.Map;
 public class Config {
     private static final File configDir = new File(Loader.instance().getConfigDir(), File.separator + "NanoUtils");
     private static final File configFile = new File(configDir.getAbsolutePath() + File.separator +  "config.json");
+    private static final File mcDir = Loader.instance().getConfigDir().getParentFile();
+    private static final File modulesDir = new File(mcDir, File.separator + "NanoModules");
 
     public static void saveConfig() {
         JsonObject config = new JsonObject();
@@ -145,4 +153,19 @@ public class Config {
         kb.setKeyModifierAndCode(KeyModifier.valueFromString(json.getAsJsonObject().get("modifier").getAsString()), json.getAsJsonObject().get("keycode").getAsInt());
         return kb;
     };
+
+    public static List<Module> getRuntimeModules() {
+        if (!modulesDir.exists()) { modulesDir.mkdir(); }
+        List<Module> modules = new ArrayList<>();
+        for (File mod : modulesDir.listFiles()) {
+            try (FileReader reader = new FileReader(mod)) {
+                Module m = Reflect.compile("modules." + FilenameUtils.removeExtension(mod.getName()), FileUtils.readFileToString(mod)).create().get();
+                modules.add(m);
+            } catch (Exception e) {
+                System.out.println("Couldn't load module: " + mod.getName() + "Cause :" + e.getMessage());
+            }
+        }
+        return modules;
+    }
+
 }

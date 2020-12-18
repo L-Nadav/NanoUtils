@@ -1,6 +1,5 @@
 package com.kyozm.nanoutils.gui.widgets.containers;
 
-import com.kyozm.nanoutils.NanoUtils;
 import com.kyozm.nanoutils.gui.widgets.Widget;
 import com.kyozm.nanoutils.gui.widgets.buttons.Button;
 import com.kyozm.nanoutils.gui.widgets.buttons.ModuleButton;

@@ -6,11 +6,9 @@ import com.kyozm.nanoutils.gui.widgets.containers.SettingsList;
 import com.kyozm.nanoutils.modules.gui.NanoGuiModule;
 import com.kyozm.nanoutils.modules.gui.Theme;
 import com.kyozm.nanoutils.settings.NestedSetting;
-import com.kyozm.nanoutils.settings.Setting;
 import com.kyozm.nanoutils.utils.FontDrawer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import org.codehaus.plexus.util.CollectionUtils;
 
 public class NestedSettingButton extends ToggleableSubmenuOpener {
     private NestedSetting setting;

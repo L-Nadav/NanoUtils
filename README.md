@@ -17,9 +17,7 @@ JDK 8
 2. Unix - Run ./gradlew clean build on terminal
 3. Done :) it's in build/libs/
 
-## Roadmap 0.1.final
+## Roadmap 0.3
 
-- More setting types (sliders, color pickers, etc)
-- Map Preview scale control (depends on above)
-- GUI color settings (depends on first one too)
-- Find and fix bugs
+- Fix all issues
+- Runtime module loader
